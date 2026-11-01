@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediMind AI | Your Health Information Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a href="/" class="brand">
+            <span class="brand-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                    <rect x="2" y="2" width="44" height="44" rx="14" fill="#DDF4EF"/>
+                    <path d="M24 11V37M11 24H37" stroke="#087F70" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <span class="brand-name">MediMind <span>AI</span></span>
+        </a>
+        <span class="header-tagline">Your Personal Health Information Space</span>
+    </header>
+
+    <main>
+        <section id="welcome" class="welcome-section">
+            <div class="welcome-content">
+                <span class="eyebrow">HEALTH KNOWLEDGE, MADE SIMPLE</span>
+                <h1>Understand your health. <span>Make informed choices.</span></h1>
+                <p>Explore common symptoms, learn about possible health conditions and discover useful health information in one place.</p>
+                <button class="primary-button" type="button" onclick="showRegistration()">Get Started →</button>
+                <div class="trust-note"><span>●</span> Educational health information, not a diagnosis.</div>
+            </div>
+            <div class="welcome-visual" aria-hidden="true">
+                <div class="visual-circle">
+                    <div class="medical-symbol">✚</div>
+                    <div class="visual-label label-one">Health awareness</div>
+                    <div class="visual-label label-two">AI information</div>
+                    <div class="visual-label label-three">Wellness</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="registration" class="page-section hidden">
+            <div class="form-card">
+                <div class="section-icon">✚</div>
+                <span class="eyebrow">LET'S GET STARTED</span>
+                <h2>Create Your Profile</h2>
+                <p class="section-description">Enter a few basic details to personalise your experience. Your profile stays in this browser session.</p>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="name">Your name</label>
+                        <input type="text" id="name" placeholder="Enter your name" maxlength="60" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Your age</label>
+                        <input type="number" id="age" placeholder="Enter your age" min="1" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender (optional)</label>
+                        <select id="gender">
+                            <option value="">Prefer not to say</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button class="primary-button full-button" type="submit">Continue →</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="dashboard" class="page-section hidden">
+            <div class="dashboard-welcome">
+                <span class="eyebrow">YOUR PERSONAL SPACE</span>
+                <h1>Hello, <span id="userName">User</span>!</h1>
+                <p>What would you like to explore today?</p>
+            </div>
+            <div class="dashboard-grid">
+                <article class="feature-card featured-card">
+                    <div class="feature-icon">✚</div>
+                    <span class="card-tag">HEALTH EXPLORER</span>
+                    <h2>Explore Your Symptoms</h2>
+                    <p>Enter symptoms and learn about general health possibilities and useful information.</p>
+                    <button class="primary-button" type="button" onclick="startAssessment()">Explore Symptoms →</button>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon">✧</div>
+                    <span class="card-tag">AI ASSISTANT</span>
+                    <h2>Ask MediMind AI</h2>
+                    <p>Ask general health-awareness questions and explore educational explanations.</p>
+                    <button class="secondary-button" type="button" onclick="openChat()">Open Chatbot →</button>
+                    <p id="chatModelStatus" class="model-status">Checking local AI model...</p>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon">▤</div>
+                    <span class="card-tag">MY HEALTH PROFILE</span>
+                    <h2>Medical History & Records</h2>
+                    <p>Manage your health details and keep your test reports together on this computer.</p>
+                    <button class="secondary-button" type="button" onclick="openHealthProfile()">Open Health Profile →</button>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon">♡</div>
+                    <span class="card-tag">AWARENESS</span>
+                    <h2>Health Awareness</h2>
+                    <p>Understand the importance of recognising symptoms and seeking professional guidance.</p>
+                </article>
+            </div>
+            <div class="notice-card">
+                <strong>Important health notice</strong>
+                <p>MediMind AI provides educational information. It does not diagnose, prescribe treatment or replace professional medical care.</p>
+            </div>
+        </section>
+
+
+        <section id="healthProfileSection" class="page-section hidden">
+            <div class="form-card wide-card">
+                <span class="eyebrow">YOUR PRIVATE HEALTH SPACE</span>
+                <h2>Complete Health Profile</h2>
+                <p class="section-description">Only enter information you are comfortable storing on this computer. Fields are optional unless marked required.</p>
+                <form id="healthProfileForm">
+                    <h3 class="form-subheading">Personal details</h3>
+                    <div class="profile-grid">
+                        <div class="form-group"><label for="hp_full_name">Full name *</label><input id="hp_full_name" required maxlength="80"></div>
+                        <div class="form-group"><label for="hp_dob">Date of birth</label><input id="hp_dob" type="date"></div>
+                        <div class="form-group"><label for="hp_gender">Gender</label><select id="hp_gender"><option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Other</option></select></div>
+                        <div class="form-group"><label for="hp_blood_group">Blood group (if known)</label><select id="hp_blood_group"><option value="">Not known</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+                        <div class="form-group"><label for="hp_height">Height (optional)</label><input id="hp_height" placeholder="e.g. 160 cm"></div>
+                        <div class="form-group"><label for="hp_weight">Weight (optional)</label><input id="hp_weight" placeholder="e.g. 55 kg"></div>
+                        <div class="form-group"><label for="hp_emergency_contact">Emergency contact (optional)</label><input id="hp_emergency_contact" maxlength="80"></div>
+                    </div>
+                    <h3 class="form-subheading">Medical history</h3>
+                    <div class="profile-grid">
+                        <div class="form-group"><label for="hp_conditions">Existing conditions</label><textarea id="hp_conditions" rows="2" placeholder="List any conditions, if applicable"></textarea></div>
+                        <div class="form-group"><label for="hp_allergies">Allergies</label><textarea id="hp_allergies" rows="2" placeholder="Medicines, foods or other allergies"></textarea></div>
+                        <div class="form-group"><label for="hp_surgeries">Past surgeries</label><textarea id="hp_surgeries" rows="2"></textarea></div>
+                        <div class="form-group"><label for="hp_family_history">Family medical history</label><textarea id="hp_family_history" rows="2"></textarea></div>
+                        <div class="form-group"><label for="hp_current_medicines">Current medicines (names only)</label><textarea id="hp_current_medicines" rows="2"></textarea></div>
+                        <div class="form-group"><label for="hp_hospitalisations">Previous hospitalisations</label><textarea id="hp_hospitalisations" rows="2"></textarea></div>
+                    </div>
+                    <button class="primary-button" type="submit">Save Health Profile</button>
+                    <span id="profileSaveStatus" class="form-status" role="status"></span>
+                </form>
+                <div class="records-divider"></div>
+
+                <div class="records-divider"></div>
+                <h2>Health Overview</h2>
+                <p class="section-description">A summary of the records saved in this profile.</p>
+                <div class="health-stats-grid">
+                    <article class="health-stat"><span>Total records</span><strong id="statTotal">0</strong></article>
+                    <article class="health-stat"><span>Uploaded reports</span><strong id="statUploads">0</strong></article>
+                    <article class="health-stat"><span>Manual results</span><strong id="statManual">0</strong></article>
+                </div>
+                <h3 class="form-subheading">Recent activity</h3>
+                <div id="healthTimeline" class="health-timeline">No records yet.</div>
+
+                <h2>Health Records</h2>
+                <p class="section-description">Add test results manually or upload a report. Maximum upload size: 5 MB per file. Accepted: PDF, JPG, PNG.</p>
+                <div class="profile-grid record-entry-grid">
+                    <form id="manualRecordForm" class="record-panel">
+                        <h3>Enter a test result</h3>
+                        <div class="form-group"><label for="record_test_name">Test name *</label><input id="record_test_name" required maxlength="120" placeholder="e.g. CBC"></div>
+                        <div class="form-group"><label for="record_result">Result *</label><input id="record_result" required maxlength="120" placeholder="Enter the value as shown on report"></div>
+                        <div class="form-group"><label for="record_unit">Unit</label><input id="record_unit" maxlength="40" placeholder="e.g. g/dL"></div>
+                        <div class="form-group"><label for="record_range">Reference range shown on report</label><input id="record_range" maxlength="120"></div>
+                        <div class="form-group"><label for="record_date">Test date</label><input id="record_date" type="date"></div>
+                        <div class="form-group"><label for="record_notes">Notes</label><textarea id="record_notes" rows="2"></textarea></div>
+                        <button class="primary-button" type="submit">Save Test Result</button>
+                    </form>
+                    <form id="uploadRecordForm" class="record-panel">
+                        <h3>Upload a report</h3>
+                        <div class="form-group"><label for="report_file">Choose PDF or image</label><input id="report_file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required></div>
+                        <div class="form-group"><label for="upload_date">Report date</label><input id="upload_date" type="date"></div>
+                        <div class="form-group"><label for="upload_notes">Notes</label><textarea id="upload_notes" rows="2"></textarea></div>
+                        <button class="primary-button" type="submit">Upload Report</button>
+                    </form>
+                </div>
+                <h3 class="form-subheading">Saved records</h3>
+                <div id="healthRecordsList" class="health-records-list">Loading records...</div>
+                <p class="medical-disclaimer">Health records are sensitive. This prototype stores them locally without account login or encryption. Use only on a trusted, private computer. Do not upload anyone else's records without permission. It is not a medical record system approved for clinical use.</p>
+                <button class="back-button" type="button" onclick="showDashboard()">← Back to dashboard</button>
+            </div>
+        </section>
+
+        <section id="symptomSection" class="page-section hidden">
+            <div class="form-card symptom-card">
+                <span class="eyebrow">HEALTH EXPLORER</span>
+                <h2>Tell Us About Your Symptoms</h2>
+                <p class="section-description">Select the symptoms you want to explore. You can also describe other symptoms.</p>
+                <form id="symptomForm">
+                    <label class="field-heading">Select your symptoms</label>
+                    <div class="symptom-options">
+                        <label class="symptom-option"><input type="checkbox" value="cough"><span>Cough</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="fever"><span>Fever</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="headache"><span>Headache</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="cold"><span>Cold</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="fatigue"><span>Fatigue</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="stomach pain"><span>Stomach pain</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="body pain"><span>Body pain</span></label>
+                        <label class="symptom-option"><input type="checkbox" value="sore throat"><span>Sore throat</span></label>
+                    </div>
+                    <div class="form-group description-group">
+                        <label for="symptomDescription">Describe any other symptoms</label>
+                        <textarea id="symptomDescription" rows="5" maxlength="2000" placeholder="Describe what you are experiencing..."></textarea>
+                    </div>
+                    <p class="privacy-note">Avoid entering your full name, address, phone number or other identifying information.</p>
+                    <button class="primary-button full-button" id="analyzeButton" type="submit">Explore Health Information →</button>
+                </form>
+            </div>
+            <div id="analysisResults" class="results-container hidden" aria-live="polite"></div>
+            <button class="back-button" type="button" onclick="showDashboard()">← Back to Dashboard</button>
+        </section>
+
+        <section id="chatSection" class="page-section hidden">
+            <div class="chat-shell">
+                <div class="chat-top">
+                    <div>
+                        <span class="eyebrow">LOCAL AI ASSISTANT</span>
+                        <h2>MediMind AI Chatbot</h2>
+                        <p>Ask general health-awareness questions.</p>
+                    </div>
+                    <span class="local-badge">Ollama · Local</span>
+                </div>
+                <div id="chatMessages" class="chat-messages" aria-live="polite">
+                    <div class="chat-bubble assistant">
+                        <strong>MediMind AI</strong>
+                        <p>Hello! I'm MediMind AI. I can help explain general health information in simple language. I cannot diagnose conditions or prescribe medicines. What would you like to learn about?</p>
+                    </div>
+                </div>
+                <form id="chatForm" class="chat-form">
+                    <textarea id="chatInput" rows="2" maxlength="1200" placeholder="Ask a general health question..." required></textarea>
+                    <button class="primary-button" id="sendChatButton" type="submit">Send ↑</button>
+                </form>
+                <p id="chatStatus" class="chat-status">Your chat is kept in this page session and is not saved to a database.</p>
+                <div class="medical-disclaimer">
+                    <strong>Health and safety:</strong>
+                    This chatbot is for education only, not diagnosis or treatment. For personal concerns, contact a qualified healthcare professional. Seek urgent help for severe or rapidly worsening symptoms.
+                </div>
+                <button class="back-button" type="button" onclick="showDashboard()">← Back to Dashboard</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>MediMind AI · Health information made easier to understand.</p>
+        <p>For educational purposes only. Not a substitute for medical care.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

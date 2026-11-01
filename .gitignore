@@ -1,0 +1,5 @@
+medimind.db
+uploads/
+.env
+__pycache__/
+*.pyc
