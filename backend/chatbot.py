@@ -1,8 +1,9 @@
 import os
 import requests
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "").strip()
+HF_TOKEN = os.environ.get("HF_TOKEN", "").strip()
+HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
+HF_MODEL = "google/gemma-2-2b-it:fastest"
 
 SYSTEM_PROMPT = """
 You are MediMind AI, a health-education assistant.
@@ -29,58 +30,26 @@ This is educational information, not a diagnosis or substitute for care.
 """
 
 
-def _get_tags():
-    try:
-        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
-        response.raise_for_status()
-        payload = response.json()
-        return payload.get("models", [])
-    except requests.RequestException as error:
-        raise RuntimeError(
-            "Ollama is not reachable. Open the Ollama application and make sure it is running."
-        ) from error
-
-
 def get_available_model():
-    if OLLAMA_MODEL:
-        installed = [item.get("name", "") for item in _get_tags()]
-        if OLLAMA_MODEL in installed:
-            return OLLAMA_MODEL
-        raise RuntimeError(
-            f"The configured Ollama model '{OLLAMA_MODEL}' is not installed. "
-            "Check the model name shown by the command: ollama list"
-        )
-
-    models = _get_tags()
-    names = [item.get("name", "") for item in models if item.get("name")]
-
-    if not names:
-        raise RuntimeError(
-            "No Ollama model is installed. Open a terminal and download a model with Ollama first."
-        )
-
-    # Prefer the Qwen models mentioned in the project setup, otherwise use
-    # the first model Ollama reports as installed.
-    for preferred in ("qwen2.5:3b", "qwen2.5:0.5b"):
-        for name in names:
-            if name.lower() == preferred:
-                return name
-
-    return names[0]
+    return HF_MODEL
 
 
 def chat_with_ollama(message, history=None):
-    model = get_available_model()
+    if not HF_TOKEN:
+        raise RuntimeError(
+            "Hugging Face token is missing. Check the HF_TOKEN environment variable."
+        )
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-    # Keep only a small amount of recent conversation in memory.
     if isinstance(history, list):
         for item in history[-8:]:
             if not isinstance(item, dict):
                 continue
+
             role = item.get("role")
             content = item.get("content")
+
             if role in ("user", "assistant") and isinstance(content, str):
                 messages.append({
                     "role": role,
@@ -89,30 +58,51 @@ def chat_with_ollama(message, history=None):
 
     messages.append({"role": "user", "content": message})
 
+    headers = {
+        "Authorization": f"Bearer {HF_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": HF_MODEL,
+        "messages": messages,
+        "max_tokens": 500,
+        "stream": False
+    }
+
     try:
         response = requests.post(
-            f"{OLLAMA_URL}/api/chat",
-            json={
-                "model": model,
-                "messages": messages,
-                "stream": False
-            },
+            HF_API_URL,
+            headers=headers,
+            json=payload,
             timeout=120
         )
+
+        if response.status_code == 401:
+            raise RuntimeError("Hugging Face authentication failed. Check your token.")
+
+        if response.status_code == 402:
+            raise RuntimeError("Hugging Face inference credits or payment limit reached.")
+
+        if response.status_code == 503:
+            raise RuntimeError("The AI model is temporarily unavailable. Try again later.")
+
         response.raise_for_status()
-        payload = response.json()
-        answer = payload.get("message", {}).get("content", "").strip()
+
+        result = response.json()
+        answer = result["choices"][0]["message"]["content"].strip()
 
         if not answer:
-            raise RuntimeError("Ollama returned an empty response. Please try again.")
+            raise RuntimeError("The AI returned an empty response.")
 
-        return answer, model
+        return answer, HF_MODEL
 
     except requests.Timeout as error:
         raise RuntimeError(
-            "The AI model is taking too long to respond. Please try again."
+            "The AI is taking too long to respond. Please try again."
         ) from error
+
     except requests.RequestException as error:
         raise RuntimeError(
-            "Could not get a response from Ollama. Check that Ollama is running and try again."
+            "Could not connect to Hugging Face. Please try again later."
         ) from error
